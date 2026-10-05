@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Rádio Web</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .player-card {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 80%;
+            max-width: 350px;
+        }
+        h1 { font-size: 22px; margin-bottom: 5px; }
+        p { color: #aaa; font-size: 14px; margin-bottom: 25px; }
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.95); }
+        .status { margin-top: 15px; font-size: 13px; color: #f39c12; }
+    </style>
+</head>
+<body>
+
+    <div class="player-card">
+        <h1>Rádio Ao Vivo</h1>
+        <p>Ouça em segundo plano</p>
+        
+        <!-- Elemento de áudio configurado com a tag source -->
+        <audio id="radioStream" preload="none">
+            <source src="https://ice.fabricahost.com.br/cbnrecife" type="audio/mpeg">
+            Seu navegador não suporta áudio.
+        </audio>
+        
+        <button id="playBtn" onclick="togglePlay()">Tocar Rádio</button>
+        <div id="status" class="status">Parado</div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('radioStream');
+        const playBtn = document.getElementById('playBtn');
+        const statusDiv = document.getElementById('status');
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    playBtn.innerText = "Pausar Rádio";
+                    statusDiv.innerText = "Transmitindo ao vivo...";
+                    configurarMediaSession();
+                }).catch(error => {
+                    console.log("Erro ao reproduzir:", error);
+                    statusDiv.innerText = "Erro ao conectar com o stream.";
+                });
+            } else {
+                audio.pause();
+                playBtn.innerText = "Tocar Rádio";
+                statusDiv.innerText = "Pausado";
+            }
+        }
+
+        function configurarMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: 'Transmissão ao Vivo',
+                    artist: 'Minha Rádio Web',
+                    album: 'Programação Ao Vivo',
+                    artwork: [
+                        { src: 'https://via.placeholder.com/96', sizes: '96x96', type: 'image/png' },
+                        { src: 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/png' }
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', function() {
+                    audio.play();
+                    playBtn.innerText = "Pausar Rádio";
+                    statusDiv.innerText = "Transmitindo ao vivo...";
+                });
+
+                navigator.mediaSession.setActionHandler('pause', function() {
+                    audio.pause();
+                    playBtn.innerText = "Tocar Rádio";
+                    statusDiv.innerText = "Pausado";
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
